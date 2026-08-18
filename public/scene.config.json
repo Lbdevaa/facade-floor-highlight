@@ -1,0 +1,37 @@
+{
+  "sensorHeightMm": 13.365,
+
+  "model": {
+    "src": "assets/SM_highlight_A_7F.fbx",
+    "label": "7 этаж, корпус А",
+    "positionCmUe": {"x": -7163.758, "y": -548.134, "z": 16462.25},
+    "rotationDegUe": {"pitch": 0, "yaw": 0, "roll": 0}
+  },
+
+  "shots": [
+    {
+      "id": "pogod-01",
+      "title": "Кадр 1",
+      "imageSrc": "assets/Pogod_01.jpg",
+      "imageWidthPx": 3439,
+      "imageHeightPx": 1379,
+      "camera": {
+        "positionCmUe": {"x": -8219.125682, "y": 17917.186677, "z": 21877.937132},
+        "rotationDegUe": {"pitch": -16.484003, "yaw": -90.03614, "roll": 0},
+        "focalLengthMm": 25
+      }
+    },
+    {
+      "id": "pogod-02",
+      "title": "Кадр 2",
+      "imageSrc": "assets/Pogod_02.jpg",
+      "imageWidthPx": 3439,
+      "imageHeightPx": 1382,
+      "camera": {
+        "positionCmUe": {"x": -26815.163848, "y": -299.492574, "z": 22587.838344},
+        "rotationDegUe": {"pitch": -18.527453, "yaw": -1.348379, "roll": -0},
+        "focalLengthMm": 25
+      }
+    }
+  ]
+}
