@@ -4,8 +4,8 @@
   "model": {
     "src": "assets/SM_highlight_A_7F.fbx",
     "label": "7 этаж, корпус А",
-    "positionCmUe": {"x": -7163.758, "y": -548.134, "z": 16462.25},
-    "rotationDegUe": {"pitch": 0, "yaw": 0, "roll": 0}
+    "positionCmUe": {"x": -7393.3, "y": 2847.0, "z": 16458.3},
+    "rotationDegUe": {"pitch": 0, "yaw": 12.5, "roll": 0}
   },
 
   "shots": [

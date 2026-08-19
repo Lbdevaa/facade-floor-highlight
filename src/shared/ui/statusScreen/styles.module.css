@@ -1,0 +1,48 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgb(255 255 255 / 0.2);
+  border-top-color: #4da3ff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.title {
+  margin: 0;
+  font-size: 15px;
+}
+
+.details {
+  max-width: min(640px, 90vw);
+  margin: 0;
+  overflow-x: auto;
+  color: #ff9d9d;
+  font-size: 13px;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Пользователи, попросившие убрать анимации, получают статичный индикатор. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
+}

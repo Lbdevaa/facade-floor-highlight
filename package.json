@@ -12,7 +12,9 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "vite-node scripts/verify-projection.ts"
+    "verify": "vite-node scripts/verify-projection.ts",
+    "triangulate": "vite-node scripts/triangulate.ts",
+    "solve": "vite-node scripts/solve-position.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
@@ -34,6 +36,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.4",
     "globals": "^17.11.0",
+    "playwright": "^1.62.1",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.67.0",
