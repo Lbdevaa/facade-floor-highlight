@@ -1,4 +1,4 @@
-/** Снимок при заданном положении модели: node scripts/try-position.mjs <x> <y> <z> <файл> [кадр] */
+/** Снимок при заданном положении модели: node scripts/claude-view/try-position.mjs <x> <y> <z> <файл> [кадр] */
 import {readFileSync, writeFileSync} from 'node:fs'
 import {chromium} from 'playwright'
 

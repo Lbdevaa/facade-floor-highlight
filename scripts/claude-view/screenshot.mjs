@@ -1,7 +1,7 @@
 /**
  * Скриншоты страницы в нескольких геометриях окна — проверка совмещения без участия человека.
  *
- * Запуск: node scripts/screenshot.mjs [url] [папка]
+ * Запуск: node scripts/claude-view/screenshot.mjs [url] [папка]
  * По умолчанию снимает отладочный режим первого кадра на dev-сервере.
  */
 import {mkdirSync} from 'node:fs'

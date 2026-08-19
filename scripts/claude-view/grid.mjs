@@ -1,6 +1,6 @@
 /**
  * Скриншот с координатной сеткой в пикселях ИСХОДНОГО кадра.
- * node scripts/grid.mjs <url> <файл> [шаг] [x,y,w,h]
+ * node scripts/claude-view/grid.mjs <url> <файл> [шаг] [x,y,w,h]
  */
 import {chromium} from 'playwright'
 

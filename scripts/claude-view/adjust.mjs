@@ -1,5 +1,5 @@
 /**
- * Юстировка через отладочную панель: node scripts/adjust.mjs <url> <файл> [действия]
+ * Юстировка через отладочную панель: node scripts/claude-view/adjust.mjs <url> <файл> [действия]
  * Действия через запятую: flipY | z-3 (три шага вниз) | x+2 | шаг500
  */
 import {chromium} from 'playwright'
