@@ -16,7 +16,7 @@ import type {ShotConfig} from '../model/types'
 const config = parseSceneConfig(JSON.parse(readFileSync('public/scene.config.json', 'utf8')))
 
 /** Куда попадает начало координат модели на кадре, в пикселях исходного изображения. */
-function projectModelOrigin(shot: ShotConfig) {
+const projectModelOrigin = (shot: ShotConfig) => {
   const camera = new PerspectiveCamera(
     focalLengthToFovY(shot.camera.focalLengthMm, config.sensorHeightMm),
     shot.imageWidthPx / shot.imageHeightPx,

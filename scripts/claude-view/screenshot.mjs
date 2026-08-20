@@ -8,10 +8,13 @@ import {mkdirSync} from 'node:fs'
 import {join} from 'node:path'
 import {chromium} from 'playwright'
 
-/** Ждём, пока сцена реально отрисует геометрию: headless-браузер стартует медленно. */
-async function waitForScene(page) {
-  await page.waitForFunction(() => (window.__r3f?.gl.info.render.triangles ?? 0) > 0, null, {timeout: 15000})
-  await page.waitForTimeout(300)
+/**
+ * Ждём готовности страницы: data-loaded на кадре появляется, когда загружены и картинка,
+ * и геометрия — то есть когда кроп уже смещён к зданию и больше не дёрнется.
+ */
+const waitForScene = async (page) => {
+  await page.waitForSelector('img[data-loaded]', {timeout: 20000})
+  await page.waitForTimeout(400)
 }
 
 const url = process.argv[2] ?? 'http://localhost:5173/?debug'

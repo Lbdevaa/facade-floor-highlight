@@ -36,7 +36,7 @@ const geometry = (() => {
 
 const localBox = geometry.boundingBox as Box3
 
-function cameraFor(shot: ShotConfig): PerspectiveCamera {
+const cameraFor = (shot: ShotConfig): PerspectiveCamera => {
   const camera = new PerspectiveCamera(
     focalLengthToFovY(shot.camera.focalLengthMm, config.sensorHeightMm),
     shot.imageWidthPx / shot.imageHeightPx,
@@ -51,14 +51,14 @@ function cameraFor(shot: ShotConfig): PerspectiveCamera {
 }
 
 /** Точка сцены → пиксели кадра. */
-function toPixels(point: Vector3, shot: ShotConfig, camera: PerspectiveCamera) {
+const toPixels = (point: Vector3, shot: ShotConfig, camera: PerspectiveCamera) => {
   const ndc = point.clone().project(camera)
 
   return {x: ((ndc.x + 1) / 2) * shot.imageWidthPx, y: ((1 - ndc.y) / 2) * shot.imageHeightPx}
 }
 
 /** Под каким Pitch и Yaw камера видит эту точку — для сравнения с поворотом самой камеры. */
-function anglesTo(target: UeVector, shot: ShotConfig) {
+const anglesTo = (target: UeVector, shot: ShotConfig) => {
   const dx = target.x - shot.camera.positionCmUe.x
   const dy = target.y - shot.camera.positionCmUe.y
   const dz = target.z - shot.camera.positionCmUe.z

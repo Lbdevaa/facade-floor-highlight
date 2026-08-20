@@ -7,7 +7,7 @@ const REAL_CONFIG = JSON.parse(readFileSync('public/scene.config.json', 'utf8'))
 /* eslint-disable @typescript-eslint/no-explicit-any -- конфиг в тестах ломается намеренно, типы тут мешают */
 
 /** Копия конфига с изменённым полем: мутировать общий объект между тестами нельзя. */
-function withPatch(patch: (config: Record<string, any>) => void): unknown {
+const withPatch = (patch: (config: Record<string, any>) => void): unknown => {
   const copy = structuredClone(REAL_CONFIG)
   patch(copy)
 

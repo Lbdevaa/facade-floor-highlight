@@ -7,7 +7,7 @@ interface Props {
 }
 
 /** Полноэкранное сообщение: страница состоит из одного кадра, показывать состояние больше негде. */
-export function StatusScreen({kind, title, details}: Props) {
+export const StatusScreen = ({kind, title, details}: Props) => {
   return (
     <div className={styles.screen} role={kind === 'error' ? 'alert' : 'status'}>
       {kind === 'loading' && <div className={styles.spinner} aria-hidden />}

@@ -6,7 +6,7 @@ import {useEffect} from 'react'
  * юстировки в scripts/: они ждут, пока сцена реально отрисует геометрию, и читают
  * положение камеры. Живёт только в отладочном режиме.
  */
-export function DebugBridge() {
+export const DebugBridge = () => {
   const state = useThree()
 
   useEffect(() => {

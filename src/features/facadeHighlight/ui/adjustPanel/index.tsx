@@ -15,7 +15,7 @@ const AXES: {axis: UeAxis; title: string; hint: string}[] = [
 ]
 
 /** Панель юстировки. Живёт только в отладочном режиме `?debug`. */
-export function AdjustPanel({adjust, cameraInfo}: Props) {
+export const AdjustPanel = ({adjust, cameraInfo}: Props) => {
   const [copied, setCopied] = useState(false)
 
   const copy = async () => {

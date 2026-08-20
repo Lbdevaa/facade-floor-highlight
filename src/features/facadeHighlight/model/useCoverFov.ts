@@ -9,7 +9,7 @@ import {coverFovY, focalLengthToFovY} from 'shared/lib/lens'
  * которая осталась на экране: угол сжимается на видимую долю высоты. Без этого
  * геометрия поедет при первом же изменении пропорций окна.
  */
-export function useCoverFov(shot: ShotConfig, sensorHeightMm: number): number {
+export const useCoverFov = (shot: ShotConfig, sensorHeightMm: number): number => {
   const size = useThree((state) => state.size)
   const imageFovY = focalLengthToFovY(shot.camera.focalLengthMm, sensorHeightMm)
 

@@ -28,12 +28,12 @@ export const UE_TO_THREE_SCALE = 0.01
  * оставил бы сцену зеркальной. Тот же оператор применяется и к точкам, и к направлениям,
  * и к вершинам геометрии, поэтому взаимное расположение камеры и объёма сохраняется.
  */
-export function uePositionToThree(position: UeVector, target = new Vector3()): Vector3 {
+export const uePositionToThree = (position: UeVector, target = new Vector3()): Vector3 => {
   return target.set(position.x * UE_TO_THREE_SCALE, position.z * UE_TO_THREE_SCALE, position.y * UE_TO_THREE_SCALE)
 }
 
 /** То же отображение для направления: масштаб не применяется. */
-export function ueDirectionToThree(direction: UeVector, target = new Vector3()): Vector3 {
+export const ueDirectionToThree = (direction: UeVector, target = new Vector3()): Vector3 => {
   return target.set(direction.x, direction.z, direction.y)
 }
 
@@ -41,7 +41,7 @@ export function ueDirectionToThree(direction: UeVector, target = new Vector3()):
  * Матрица, переносящая вершины геометрии из конвенции Unreal (Z вверх, метры) в three.
  * Определитель −1 — то же отражение, что и для позиций.
  */
-export function ueGeometryMatrix(): Matrix4 {
+export const ueGeometryMatrix = (): Matrix4 => {
   // prettier-ignore
   return new Matrix4().set(
     1, 0, 0, 0,
@@ -58,7 +58,7 @@ export function ueGeometryMatrix(): Matrix4 {
  * Roll учитывается наравне с Pitch и Yaw. На обоих известных кадрах Roll = 0,
  * но проверять решение будут третьим кадром, которого мы не видели.
  */
-export function ueRotationBasis(rotation: UeRotation): {forward: UeVector; right: UeVector; up: UeVector} {
+export const ueRotationBasis = (rotation: UeRotation): {forward: UeVector; right: UeVector; up: UeVector} => {
   const cp = Math.cos(rotation.pitch * DEG)
   const sp = Math.sin(rotation.pitch * DEG)
   const cy = Math.cos(rotation.yaw * DEG)
@@ -80,7 +80,7 @@ export function ueRotationBasis(rotation: UeRotation): {forward: UeVector; right
  * Собирается из базиса, а не через lookAt: lookAt восстанавливает up из мировой
  * вертикали и теряет roll.
  */
-export function ueRotationToCameraQuaternion(rotation: UeRotation, target = new Quaternion()): Quaternion {
+export const ueRotationToCameraQuaternion = (rotation: UeRotation, target = new Quaternion()): Quaternion => {
   const basis = ueRotationBasis(rotation)
   const matrix = new Matrix4().makeBasis(
     ueDirectionToThree(basis.right),
@@ -99,7 +99,7 @@ export function ueRotationToCameraQuaternion(rotation: UeRotation, target = new 
  * обратная сама себе. Одностороннее применение дало бы матрицу с определителем −1,
  * то есть отражение вместо поворота, и кватернион из неё получился бы бессмысленным.
  */
-export function ueRotationToObjectQuaternion(rotation: UeRotation, target = new Quaternion()): Quaternion {
+export const ueRotationToObjectQuaternion = (rotation: UeRotation, target = new Quaternion()): Quaternion => {
   const basis = ueRotationBasis(rotation)
   const rotationUe = new Matrix4().makeBasis(
     new Vector3(basis.forward.x, basis.forward.y, basis.forward.z),

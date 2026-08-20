@@ -1,8 +1,6 @@
-import {useEffect, useMemo, useState} from 'react'
+import {useEffect, useState} from 'react'
 import {loadSceneConfig, type SceneConfig} from 'entities/sceneConfig'
-import {AdjustPanel, FacadeView, useModelAdjust} from 'features/facadeHighlight'
-import {coverFovY, focalLengthToFovY} from 'shared/lib/lens'
-import {useViewportSize} from 'shared/lib/useViewportSize'
+import {FacadeView, useModelAdjust} from 'features/facadeHighlight'
 import {ErrorBoundary} from 'shared/ui/errorBoundary'
 import {StatusScreen} from 'shared/ui/statusScreen'
 
@@ -52,31 +50,10 @@ const Scene = ({config}: {config: SceneConfig}) => {
   const shot = config.shots.find((item) => item.id === params.get('shot')) ?? config.shots[0]
 
   const adjust = useModelAdjust(config.model)
-  const viewport = useViewportSize()
-
-  const cameraInfo = useMemo(() => {
-    const image = {width: shot.imageWidthPx, height: shot.imageHeightPx}
-    const imageFovY = focalLengthToFovY(shot.camera.focalLengthMm, config.sensorHeightMm)
-    const fov = coverFovY(imageFovY, image, viewport)
-
-    return [
-      `Кадр ${image.width}×${image.height} (${(image.width / image.height).toFixed(3)})`,
-      `Окно ${Math.round(viewport.width)}×${Math.round(viewport.height)} (${(viewport.width / viewport.height).toFixed(3)})`,
-      `fovY кадра ${imageFovY.toFixed(3)}° → на экране ${fov.toFixed(3)}°`
-    ].join('\n')
-  }, [config.sensorHeightMm, shot, viewport])
 
   return (
-    <>
-      <ErrorBoundary title='Сцена не загрузилась'>
-        <FacadeView
-          shot={shot}
-          model={debug ? adjust.adjusted : config.model}
-          sensorHeightMm={config.sensorHeightMm}
-          debug={debug}
-        />
-      </ErrorBoundary>
-      {debug && <AdjustPanel adjust={adjust} cameraInfo={cameraInfo} />}
-    </>
+    <ErrorBoundary title='Сцена не загрузилась'>
+      <FacadeView shot={shot} config={config} debug={debug} adjust={adjust} />
+    </ErrorBoundary>
   )
 }

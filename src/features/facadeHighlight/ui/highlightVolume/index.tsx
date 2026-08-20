@@ -1,6 +1,6 @@
 import {useLoader} from '@react-three/fiber'
-import {useMemo, useState} from 'react'
-import {DoubleSide, Mesh} from 'three'
+import {useEffect, useMemo} from 'react'
+import {Box3, DoubleSide, Mesh, Vector3} from 'three'
 import type {BufferGeometry} from 'three'
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js'
 import {publicUrl, type HighlightModelConfig} from 'entities/sceneConfig'
@@ -12,7 +12,10 @@ const DEBUG_COLOR = '#ff3b30'
 interface Props {
   model: HighlightModelConfig
   debug: boolean
-  onHoverChange: (hovered: boolean) => void
+  highlighted: boolean
+  onHighlightChange: (highlighted: boolean) => void
+  /** Центр габарита в координатах сцены — по нему кадрируется изображение. */
+  onWorldCenterChange: (center: Vector3) => void
 }
 
 /**
@@ -23,9 +26,8 @@ interface Props {
  * в натуральную величину. По умолчанию объём полностью прозрачен и виден только
  * при наведении — в отладочном режиме подсвечивается сеткой.
  */
-export function HighlightVolume({model, debug, onHoverChange}: Props) {
+export const HighlightVolume = ({model, debug, highlighted, onHighlightChange, onWorldCenterChange}: Props) => {
   const fbx = useLoader(FBXLoader, publicUrl(model.src))
-  const [hovered, setHovered] = useState(false)
 
   const geometry = useMemo(() => {
     let source: BufferGeometry | null = null
@@ -46,25 +48,34 @@ export function HighlightVolume({model, debug, onHoverChange}: Props) {
     return converted
   }, [fbx, model.src])
 
-  const setHover = (next: boolean) => {
-    setHovered(next)
-    onHoverChange(next)
-  }
+  const position = uePositionToThree(model.positionCmUe)
+  const quaternion = ueRotationToObjectQuaternion(model.rotationDegUe)
+
+  useEffect(() => {
+    const center = new Box3().setFromBufferAttribute(geometry.attributes.position as never).getCenter(new Vector3())
+
+    onWorldCenterChange(center.applyQuaternion(quaternion).add(position))
+    // Пересчитывать нужно при смене геометрии или положения модели, а не на каждый рендер.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geometry, model.positionCmUe, model.rotationDegUe])
 
   // В отладочном режиме объём видно всегда, в обычном он проявляется только под курсором.
   const appearance =
-    hovered ? {color: HOVER_COLOR, opacity: 0.38}
+    highlighted ? {color: HOVER_COLOR, opacity: 0.38}
     : debug ? {color: DEBUG_COLOR, opacity: 0.35}
     : {color: HOVER_COLOR, opacity: 0}
 
   return (
     <mesh
       geometry={geometry}
-      position={uePositionToThree(model.positionCmUe)}
-      quaternion={ueRotationToObjectQuaternion(model.rotationDegUe)}
-      onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}
-      onPointerDown={() => setHover(true)}
+      position={position}
+      quaternion={quaternion}
+      // Мышь: наведение и уход курсора. Касание: pointerdown по объёму включает подсветку,
+      // а выключает её промах мимо объёма — onPointerMissed на канвасе. Своего pointerout
+      // тач не даёт: после отрыва пальца указатель исчезает, оставаясь над объёмом.
+      onPointerOver={() => onHighlightChange(true)}
+      onPointerOut={() => onHighlightChange(false)}
+      onPointerDown={() => onHighlightChange(true)}
     >
       <meshBasicMaterial
         color={appearance.color}

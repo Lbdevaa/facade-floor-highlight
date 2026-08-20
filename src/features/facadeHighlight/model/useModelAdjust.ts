@@ -15,7 +15,7 @@ export const ADJUST_STEPS_CM = [500, 100, 10] as const
  * каждая проверка гипотезы превращается в цикл «поправил JSON, перезагрузил, забыл».
  * Само состояние живёт только в отладочном режиме и в конфиг не попадает.
  */
-export function useModelAdjust(model: HighlightModelConfig) {
+export const useModelAdjust = (model: HighlightModelConfig) => {
   const [positionCmUe, setPositionCmUe] = useState<UeVector>(model.positionCmUe)
   const [yawDeg, setYawDeg] = useState(model.rotationDegUe.yaw)
   const [stepCm, setStepCm] = useState<number>(ADJUST_STEPS_CM[1])

@@ -1,10 +1,13 @@
 /** Прицельный скриншот: node scripts/claude-view/shot.mjs <url> <файл> [x,y,w,h] */
 import {chromium} from 'playwright'
 
-/** Ждём, пока сцена реально отрисует геометрию: headless-браузер стартует медленно. */
-async function waitForScene(page) {
-  await page.waitForFunction(() => (window.__r3f?.gl.info.render.triangles ?? 0) > 0, null, {timeout: 15000})
-  await page.waitForTimeout(300)
+/**
+ * Ждём готовности страницы: data-loaded на кадре появляется, когда загружены и картинка,
+ * и геометрия — то есть когда кроп уже смещён к зданию и больше не дёрнется.
+ */
+const waitForScene = async (page) => {
+  await page.waitForSelector('img[data-loaded]', {timeout: 20000})
+  await page.waitForTimeout(400)
 }
 
 const [url, file, clip] = process.argv.slice(2)

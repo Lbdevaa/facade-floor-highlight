@@ -15,7 +15,7 @@ export class SceneConfigError extends Error {
   }
 }
 
-function asRecord(value: unknown, path: string): Record<string, unknown> {
+const asRecord = (value: unknown, path: string): Record<string, unknown> => {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw new SceneConfigError(`${path}: ожидался объект, получено ${JSON.stringify(value)}`)
   }
@@ -23,7 +23,7 @@ function asRecord(value: unknown, path: string): Record<string, unknown> {
   return value as Record<string, unknown>
 }
 
-function asFiniteNumber(value: unknown, path: string): number {
+const asFiniteNumber = (value: unknown, path: string): number => {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
     throw new SceneConfigError(`${path}: ожидалось число, получено ${JSON.stringify(value)}`)
   }
@@ -31,7 +31,7 @@ function asFiniteNumber(value: unknown, path: string): number {
   return value
 }
 
-function asPositiveNumber(value: unknown, path: string): number {
+const asPositiveNumber = (value: unknown, path: string): number => {
   const parsed = asFiniteNumber(value, path)
 
   if (parsed <= 0) {
@@ -41,7 +41,7 @@ function asPositiveNumber(value: unknown, path: string): number {
   return parsed
 }
 
-function asNonEmptyString(value: unknown, path: string): string {
+const asNonEmptyString = (value: unknown, path: string): string => {
   if (typeof value !== 'string' || value.trim() === '') {
     throw new SceneConfigError(`${path}: ожидалась непустая строка, получено ${JSON.stringify(value)}`)
   }
@@ -49,7 +49,7 @@ function asNonEmptyString(value: unknown, path: string): string {
   return value
 }
 
-function parseUeVector(value: unknown, path: string): UeVector {
+const parseUeVector = (value: unknown, path: string): UeVector => {
   const raw = asRecord(value, path)
 
   return {
@@ -59,7 +59,7 @@ function parseUeVector(value: unknown, path: string): UeVector {
   }
 }
 
-function parseUeRotation(value: unknown, path: string): UeRotation {
+const parseUeRotation = (value: unknown, path: string): UeRotation => {
   const raw = asRecord(value, path)
 
   return {
@@ -69,7 +69,7 @@ function parseUeRotation(value: unknown, path: string): UeRotation {
   }
 }
 
-function parseCamera(value: unknown, path: string): ShotCameraConfig {
+const parseCamera = (value: unknown, path: string): ShotCameraConfig => {
   const raw = asRecord(value, path)
 
   return {
@@ -79,7 +79,7 @@ function parseCamera(value: unknown, path: string): ShotCameraConfig {
   }
 }
 
-function parseShot(value: unknown, path: string): ShotConfig {
+const parseShot = (value: unknown, path: string): ShotConfig => {
   const raw = asRecord(value, path)
 
   return {
@@ -92,7 +92,7 @@ function parseShot(value: unknown, path: string): ShotConfig {
   }
 }
 
-function parseModel(value: unknown, path: string): HighlightModelConfig {
+const parseModel = (value: unknown, path: string): HighlightModelConfig => {
   const raw = asRecord(value, path)
 
   return {
@@ -103,7 +103,7 @@ function parseModel(value: unknown, path: string): HighlightModelConfig {
   }
 }
 
-export function parseSceneConfig(value: unknown): SceneConfig {
+export const parseSceneConfig = (value: unknown): SceneConfig => {
   const raw = asRecord(value, 'config')
 
   if (!Array.isArray(raw.shots) || raw.shots.length === 0) {

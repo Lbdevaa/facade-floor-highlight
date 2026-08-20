@@ -32,7 +32,7 @@ const marks: Mark[] = process.argv.slice(2).map((argument) => {
 
 if (marks.length !== 2) throw new Error('Нужны ровно две отметки: <кадр>:<x>,<y> <кадр>:<x>,<y>')
 
-function rayFor({shot, pixel}: Mark) {
+const rayFor = ({shot, pixel}: Mark) => {
   const camera = new PerspectiveCamera(
     focalLengthToFovY(shot.camera.focalLengthMm, config.sensorHeightMm),
     shot.imageWidthPx / shot.imageHeightPx,

@@ -60,7 +60,7 @@ const fits: Fit[] = process.argv.slice(2).map((argument) => {
 
 if (fits.length !== 2) throw new Error('Нужны ровно две подгонки')
 
-function cameraFor(shot: ShotConfig): PerspectiveCamera {
+const cameraFor = (shot: ShotConfig): PerspectiveCamera => {
   const camera = new PerspectiveCamera(
     focalLengthToFovY(shot.camera.focalLengthMm, config.sensorHeightMm),
     shot.imageWidthPx / shot.imageHeightPx,
@@ -75,14 +75,14 @@ function cameraFor(shot: ShotConfig): PerspectiveCamera {
 }
 
 /** Центр объёма в сцене при данной подгонке. */
-function centerOf(fit: Fit): Vector3 {
+const centerOf = (fit: Fit): Vector3 => {
   const quaternion = ueRotationToObjectQuaternion({pitch: 0, yaw: fit.yawDeg, roll: 0})
 
   return localCenter.clone().applyQuaternion(quaternion).add(uePositionToThree(fit.positionCmUe))
 }
 
 /** Луч из камеры кадра через тот пиксель, куда подгонка поместила центр объёма. */
-function rayFor(fit: Fit) {
+const rayFor = (fit: Fit) => {
   const camera = cameraFor(fit.shot)
   const center = centerOf(fit)
   const direction = center.clone().sub(camera.position).normalize()
