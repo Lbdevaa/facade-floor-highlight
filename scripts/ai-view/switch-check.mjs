@@ -1,4 +1,4 @@
-/** Проверка переключателя кадров: node scripts/claude-view/switch-check.mjs */
+/** Проверка переключателя кадров: node scripts/ai-view/switch-check.mjs */
 import {chromium} from 'playwright'
 
 const browser = await chromium.launch({

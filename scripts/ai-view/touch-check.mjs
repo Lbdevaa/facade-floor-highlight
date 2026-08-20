@@ -1,5 +1,5 @@
 /**
- * Проверка подсветки мышью и касанием: node scripts/claude-view/touch-check.mjs [url]
+ * Проверка подсветки мышью и касанием: node scripts/ai-view/touch-check.mjs [url]
  *
  * Подсветка отражается атрибутом data-hovered на контейнере, по нему и проверяем.
  */

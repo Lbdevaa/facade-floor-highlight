@@ -1,4 +1,4 @@
-/** Прицельный скриншот: node scripts/claude-view/shot.mjs <url> <файл> [x,y,w,h] */
+/** Прицельный скриншот: node scripts/ai-view/shot.mjs <url> <файл> [x,y,w,h] */
 import {chromium} from 'playwright'
 
 /**
