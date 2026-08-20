@@ -1,16 +1,19 @@
 import {useLoader} from '@react-three/fiber'
 import {useEffect, useMemo} from 'react'
-import {Box3, DoubleSide, Mesh, Vector3} from 'three'
+import {Box3, FrontSide, Mesh, Vector3} from 'three'
 import type {BufferGeometry} from 'three'
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js'
-import {publicUrl, type HighlightModelConfig} from 'entities/sceneConfig'
+import {publicUrl, type HighlightModelConfig, type ShotConfig} from 'entities/sceneConfig'
 import {ueGeometryMatrix, uePositionToThree, ueRotationToObjectQuaternion} from 'shared/lib/ueMath'
+import {flipWinding, keepNearFaces, keepVerticalFaces} from '../../model/geometry'
 
 const HOVER_COLOR = '#4da3ff'
 const DEBUG_COLOR = '#ff3b30'
 
 interface Props {
   model: HighlightModelConfig
+  /** Камера текущего кадра: по ней отсекается дальняя половина объёма. */
+  shot: ShotConfig
   debug: boolean
   highlighted: boolean
   onHighlightChange: (highlighted: boolean) => void
@@ -26,7 +29,7 @@ interface Props {
  * в натуральную величину. По умолчанию объём полностью прозрачен и виден только
  * при наведении — в отладочном режиме подсвечивается сеткой.
  */
-export const HighlightVolume = ({model, debug, highlighted, onHighlightChange, onWorldCenterChange}: Props) => {
+export const HighlightVolume = ({model, shot, debug, highlighted, onHighlightChange, onWorldCenterChange}: Props) => {
   const fbx = useLoader(FBXLoader, publicUrl(model.src))
 
   const geometry = useMemo(() => {
@@ -45,11 +48,23 @@ export const HighlightVolume = ({model, debug, highlighted, onHighlightChange, o
     const converted = (source as BufferGeometry).clone()
     converted.applyMatrix4(ueGeometryMatrix())
 
-    return converted
+    // Из объёма берутся только стены: крышка и дно накрыли бы соседние этажи,
+    // а вместе с ними расползлась бы и зона попадания курсора.
+    return keepVerticalFaces(flipWinding(converted))
   }, [fbx, model.src])
 
   const position = uePositionToThree(model.positionCmUe)
   const quaternion = ueRotationToObjectQuaternion(model.rotationDegUe)
+
+  // Дальняя сторона контура всплывает отдельными кусками выше ленты — закрыть её нечем,
+  // здания в сцене нет. Отсекаем по камере кадра, в локальных координатах модели.
+  const visibleGeometry = useMemo(() => {
+    const cameraLocal = uePositionToThree(shot.camera.positionCmUe)
+      .sub(position)
+      .applyQuaternion(quaternion.clone().invert())
+
+    return keepNearFaces(geometry, cameraLocal)
+  }, [geometry, shot.camera.positionCmUe, position, quaternion])
 
   useEffect(() => {
     const center = new Box3().setFromBufferAttribute(geometry.attributes.position as never).getCenter(new Vector3())
@@ -67,7 +82,7 @@ export const HighlightVolume = ({model, debug, highlighted, onHighlightChange, o
 
   return (
     <mesh
-      geometry={geometry}
+      geometry={visibleGeometry}
       position={position}
       quaternion={quaternion}
       // Мышь: наведение и уход курсора. Касание: pointerdown по объёму включает подсветку,
@@ -82,11 +97,13 @@ export const HighlightVolume = ({model, debug, highlighted, onHighlightChange, o
         opacity={appearance.opacity}
         transparent
         depthWrite={false}
-        side={DoubleSide}
+        // Только грани, обращённые к камере: здания в сцене нет, и дальняя стена
+        // просвечивала бы сквозь дом второй лентой.
+        side={FrontSide}
       />
       {debug && (
         <lineSegments>
-          <edgesGeometry args={[geometry]} />
+          <edgesGeometry args={[visibleGeometry]} />
           <lineBasicMaterial color={DEBUG_COLOR} />
         </lineSegments>
       )}

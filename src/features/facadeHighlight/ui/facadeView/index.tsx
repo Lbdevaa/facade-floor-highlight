@@ -111,6 +111,7 @@ export const FacadeView = ({shot, config, debug, adjust}: Props) => {
         <Suspense fallback={null}>
           <HighlightVolume
             model={model}
+            shot={active}
             debug={debug}
             highlighted={highlighted}
             onHighlightChange={setHighlighted}
