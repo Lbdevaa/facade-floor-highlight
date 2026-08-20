@@ -12,9 +12,10 @@ const layerAliases = Object.fromEntries(
 
 export default defineConfig({
   plugins: [react()],
-  // Относительные пути в сборке: страница одинаково работает и на GitHub Pages
-  // (подкаталог репозитория), и на Vercel/Netlify (корень домена).
-  base: './',
+  // По умолчанию пути относительные — сборка одинаково работает и из подкаталога,
+  // и из корня домена. На GitHub Pages база подставляется в workflow: с ней ссылки
+  // не зависят от того, открыт адрес со слэшем на конце или без.
+  base: process.env.VITE_BASE ?? './',
   // По умолчанию Vite слушает только [::1] (IPv6), а BrowserStack Local
   // резолвит localhost в 127.0.0.1 и получает ECONNREFUSED. host: true
   // поднимает сервер и на IPv4; bs-local.com — хост туннеля BrowserStack.
