@@ -15,6 +15,10 @@ export default defineConfig({
   // Относительные пути в сборке: страница одинаково работает и на GitHub Pages
   // (подкаталог репозитория), и на Vercel/Netlify (корень домена).
   base: './',
+  // По умолчанию Vite слушает только [::1] (IPv6), а BrowserStack Local
+  // резолвит localhost в 127.0.0.1 и получает ECONNREFUSED. host: true
+  // поднимает сервер и на IPv4; bs-local.com — хост туннеля BrowserStack.
+  server: {host: true, allowedHosts: ['bs-local.com']},
   resolve: {alias: layerAliases},
   test: {environment: 'node', include: ['src/**/*.test.ts']}
 })
