@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "verify": "vite-node scripts/verify-projection.ts",
     "triangulate": "vite-node scripts/triangulate.ts",
-    "solve": "vite-node scripts/solve-position.ts"
+    "solve": "vite-node scripts/solve-position.ts",
+    "thumbs": "vite-node scripts/make-thumbs.ts"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

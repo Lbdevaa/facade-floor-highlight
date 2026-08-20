@@ -17,12 +17,27 @@
   object-fit: cover;
   object-position: center;
   opacity: 0;
-  transition: opacity 0.35s ease;
   pointer-events: none;
 }
 
+/*
+  Новый кадр проявляется поверх старого: пока он грузится, экран не пустеет.
+  Именно анимация, а не переход: кадр, который уже лежит в кэше браузера, монтируется
+  сразу готовым, и переходить ему не с чего — переход бывает только на изменении значения.
+*/
 .frame[data-loaded] {
   opacity: 1;
+  animation: reveal 0.45s ease;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .facade[data-hovered] {
@@ -30,7 +45,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .frame {
-    transition: none;
+  /* Не убираем анимацию совсем: по её завершению снимается предыдущий кадр. */
+  .frame[data-loaded] {
+    animation-duration: 0.01s;
   }
 }

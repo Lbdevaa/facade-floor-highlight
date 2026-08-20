@@ -1,10 +1,11 @@
 import {Canvas} from '@react-three/fiber'
-import {Suspense, useMemo, useRef, useState} from 'react'
+import {Suspense, useRef, useState} from 'react'
+import type {Vector3} from 'three'
 import {publicUrl, type SceneConfig, type ShotConfig} from 'entities/sceneConfig'
-import {coverRegion, regionToObjectPosition} from 'shared/lib/lens'
+import {regionToObjectPosition} from 'shared/lib/lens'
 import {useElementSize} from 'shared/lib/useElementSize'
+import {regionForShot} from '../../model/focus'
 import type {useModelAdjust} from '../../model/useModelAdjust'
-import {useFocusPoint} from '../../model/useFocusPoint'
 import {AdjustPanel} from '../adjustPanel'
 import {DebugBridge} from '../debugBridge'
 import {HighlightVolume} from '../highlightVolume'
@@ -20,64 +21,83 @@ interface Props {
 }
 
 /**
- * Кадр и сцена лежат друг на друге и показывают одну и ту же часть изображения:
- * картинка кропается через object-position, камера — через setViewOffset, и обе
- * получают один и тот же прямоугольник region. Кадр остаётся картинкой, а не текстурой:
- * так он резче и не занимает видеопамять.
+ * Кадр и сцена показывают одну и ту же часть изображения: картинка кропается через
+ * object-position, камера — через setViewOffset, и обе получают один прямоугольник.
+ * Кадр остаётся картинкой, а не текстурой: так он резче и не занимает видеопамять.
+ *
+ * При смене кадра новый грузится под старым и проявляется, когда готов. Камера переезжает
+ * ровно в этот момент: если переключить её раньше, объём окажется поверх ещё не сменившегося
+ * изображения, то есть на чужом здании.
  */
 export const FacadeView = ({shot, config, debug, adjust}: Props) => {
-  const sensorHeightMm = config.sensorHeightMm
-  const model = debug ? adjust.adjusted : config.model
-
   const containerRef = useRef<HTMLDivElement>(null)
   const size = useElementSize(containerRef)
 
   const [highlighted, setHighlighted] = useState(false)
-  const [frameLoaded, setFrameLoaded] = useState(false)
-  const {focus, setWorldCenter} = useFocusPoint(shot, sensorHeightMm)
+  const [worldCenter, setWorldCenter] = useState<Vector3 | null>(null)
+  const [loadedShots, setLoadedShots] = useState<string[]>([])
 
-  const image = useMemo(
-    () => ({width: shot.imageWidthPx, height: shot.imageHeightPx}),
-    [shot.imageWidthPx, shot.imageHeightPx]
-  )
-  // До первого замера контейнера считаем, что окно повторяет пропорции кадра:
-  // так на первом кадре не возникает кропа, который тут же пришлось бы менять.
-  const region = useMemo(
-    () => coverRegion(image, size.width > 0 ? size : image, focus ?? undefined),
-    [image, size, focus]
-  )
-  const objectPosition = regionToObjectPosition(image, region)
+  // Показанный кадр и тот, что готовится ему на смену.
+  const [displayed, setDisplayed] = useState(shot)
+  const incoming = shot.id === displayed.id ? null : shot
+  const incomingReady = incoming !== null && loadedShots.includes(incoming.id)
+  const active = incomingReady ? incoming : displayed
 
-  // Кадр показывается, когда известна и картинка, и точка кропа: иначе он дёрнется,
-  // как только загрузится геометрия и кроп сместится к зданию.
-  const ready = frameLoaded && focus !== null
+  const sensorHeightMm = config.sensorHeightMm
+  const model = debug ? adjust.adjusted : config.model
+  const viewport = size.width > 0 ? size : {width: shot.imageWidthPx, height: shot.imageHeightPx}
 
-  return (
-    <div ref={containerRef} className={styles.facade} data-hovered={highlighted || undefined}>
+  const activeView = regionForShot(active, sensorHeightMm, viewport, worldCenter)
+  const ready = loadedShots.includes(displayed.id) && activeView.focus !== null
+
+  const renderFrame = (item: ShotConfig, visible: boolean) => {
+    const {region} = regionForShot(item, sensorHeightMm, viewport, worldCenter)
+    const position = regionToObjectPosition({width: item.imageWidthPx, height: item.imageHeightPx}, region)
+
+    return (
       <img
-        key={shot.id}
+        key={item.id}
         className={styles.frame}
-        src={publicUrl(shot.imageSrc)}
-        width={shot.imageWidthPx}
-        height={shot.imageHeightPx}
-        alt={`Фасад здания, ${shot.title}`}
+        src={publicUrl(item.imageSrc)}
+        width={item.imageWidthPx}
+        height={item.imageHeightPx}
+        alt={`Фасад здания, ${item.title}`}
         draggable={false}
-        data-loaded={ready || undefined}
-        style={{objectPosition: `${objectPosition.x}% ${objectPosition.y}%`}}
+        data-loaded={visible || undefined}
+        style={{objectPosition: `${position.x}% ${position.y}%`}}
         onLoad={(event) => {
           const element = event.currentTarget
 
-          if (element.naturalWidth !== shot.imageWidthPx || element.naturalHeight !== shot.imageHeightPx) {
+          if (element.naturalWidth !== item.imageWidthPx || element.naturalHeight !== item.imageHeightPx) {
             console.error(
-              `Кадр ${shot.id}: файл ${element.naturalWidth}×${element.naturalHeight}, ` +
-                `а в конфиге ${shot.imageWidthPx}×${shot.imageHeightPx}. ` +
+              `Кадр ${item.id}: файл ${element.naturalWidth}×${element.naturalHeight}, ` +
+                `а в конфиге ${item.imageWidthPx}×${item.imageHeightPx}. ` +
                 'Пока числа не совпадают, геометрия не сядет на изображение.'
             )
           }
 
-          setFrameLoaded(true)
+          setLoadedShots((current) => (current.includes(item.id) ? current : [...current, item.id]))
+
+          // Кадр сменился — подсветка предыдущего вида больше не имеет смысла.
+          if (item.id !== displayed.id) {
+            setHighlighted(false)
+          }
+        }}
+        // Предыдущий кадр убирается, когда новый проявился полностью.
+        onAnimationEnd={() => {
+          if (visible && item.id !== displayed.id) {
+            setDisplayed(item)
+          }
         }}
       />
+    )
+  }
+
+  return (
+    <div ref={containerRef} className={styles.facade} data-hovered={highlighted || undefined}>
+      {renderFrame(displayed, ready)}
+      {incoming && renderFrame(incoming, incomingReady)}
+
       <Canvas
         className={styles.canvas}
         gl={{antialias: true, alpha: true}}
@@ -86,7 +106,7 @@ export const FacadeView = ({shot, config, debug, adjust}: Props) => {
         // её убрать: событие ухода указателя там не приходит.
         onPointerMissed={() => setHighlighted(false)}
       >
-        <ShotCamera shot={shot} sensorHeightMm={sensorHeightMm} region={region} />
+        <ShotCamera shot={active} sensorHeightMm={sensorHeightMm} region={activeView.region} />
         {debug && <DebugBridge />}
         <Suspense fallback={null}>
           <HighlightVolume
@@ -98,14 +118,17 @@ export const FacadeView = ({shot, config, debug, adjust}: Props) => {
           />
         </Suspense>
       </Canvas>
+
       {debug && (
         <AdjustPanel
           adjust={adjust}
           cameraInfo={[
-            `Кадр ${image.width}×${image.height} (${(image.width / image.height).toFixed(3)})`,
-            `Окно ${Math.round(size.width)}×${Math.round(size.height)} (${(size.width / Math.max(size.height, 1)).toFixed(3)})`,
-            `Видно ${Math.round(region.width)}×${Math.round(region.height)} от (${Math.round(region.left)}, ${Math.round(region.top)})`,
-            focus ? `Кроп по объёму: (${Math.round(focus.x)}, ${Math.round(focus.y)})` : 'Кроп по центру кадра'
+            `Кадр ${active.imageWidthPx}×${active.imageHeightPx}`,
+            `Окно ${Math.round(viewport.width)}×${Math.round(viewport.height)}`,
+            `Видно ${Math.round(activeView.region.width)}×${Math.round(activeView.region.height)} от (${Math.round(activeView.region.left)}, ${Math.round(activeView.region.top)})`,
+            activeView.focus ?
+              `Кроп по объёму: (${Math.round(activeView.focus.x)}, ${Math.round(activeView.focus.y)})`
+            : 'Кроп по центру кадра'
           ].join('\n')}
         />
       )}
