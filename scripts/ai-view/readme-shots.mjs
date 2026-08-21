@@ -27,20 +27,24 @@ const waitScene = async (page) => {
 }
 
 /**
- * Ищем точку, в которой объём принимает наведение: перебираем сетку вокруг центра, пока
- * на контейнере не появится data-hovered. Так снимок не зависит от того, куда встал кроп.
+ * Точки поиска: сначала колонка по центру сверху вниз, потом соседние — лента стен этажа
+ * узкая, редкая сетка мимо неё проскакивает.
  */
+const searchPoints = (width, height) => {
+  const points = []
+
+  for (const fx of [0.5, 0.46, 0.54, 0.42, 0.58, 0.38, 0.62])
+    for (let fy = 0.3; fy <= 0.7001; fy += 0.02) points.push({x: Math.round(width * fx), y: Math.round(height * fy)})
+
+  return points
+}
+
+/** Ищем точку, в которой этаж принимает наведение: ведём по точкам, пока не появится data-hovered. */
 const hoverVolume = async (page, width, height) => {
-  const spots = []
-
-  for (const fy of [0.5, 0.45, 0.55, 0.4, 0.6, 0.35, 0.65])
-    for (const fx of [0.5, 0.45, 0.55, 0.4, 0.6, 0.35, 0.65])
-      spots.push([Math.round(width * fx), Math.round(height * fy)])
-
-  for (const [x, y] of spots) {
-    await page.mouse.move(x, y)
-    await page.waitForTimeout(120)
-    if (await page.locator('[data-hovered]').count()) return [x, y]
+  for (const point of searchPoints(width, height)) {
+    await page.mouse.move(point.x, point.y)
+    await page.waitForTimeout(90)
+    if (await page.locator('[data-hovered]').count()) return [point.x, point.y]
   }
 
   return null

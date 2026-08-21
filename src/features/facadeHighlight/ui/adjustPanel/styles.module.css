@@ -29,7 +29,7 @@
 .row button {
   min-width: 28px;
   padding: 4px 8px;
-  border: 1px solid rgb(255 255 255 / 0.22);
+  border: 1px solid var(--button-border, rgb(255 255 255 / 0.22));
   border-radius: 7px;
   background: transparent;
   color: inherit;
@@ -37,8 +37,16 @@
   cursor: pointer;
 }
 
-.row button:hover {
-  border-color: #4da3ff;
+@media (pointer: fine) {
+  .row button:hover {
+    --button-border: #4da3ff;
+  }
+}
+
+@media (pointer: coarse) {
+  .row button:active {
+    --button-border: #4da3ff;
+  }
 }
 
 .row button[aria-pressed='true'] {

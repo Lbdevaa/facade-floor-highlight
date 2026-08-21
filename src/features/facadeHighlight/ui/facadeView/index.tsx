@@ -1,5 +1,5 @@
 import {Canvas} from '@react-three/fiber'
-import {Suspense, useRef, useState} from 'react'
+import {Suspense, useCallback, useRef, useState} from 'react'
 import type {Vector3} from 'three'
 import {publicUrl, type SceneConfig, type ShotConfig} from 'entities/sceneConfig'
 import {regionToObjectPosition} from 'shared/lib/lens'
@@ -34,6 +34,14 @@ export const FacadeView = ({shot, config, debug, adjust}: Props) => {
   const size = useElementSize(containerRef)
 
   const [highlighted, setHighlighted] = useState(false)
+  // Попал ли текущий жест в объём. Нужен, чтобы отличить нажатие мимо этажа от подъёма
+  // пальца, слегка соскользнувшего с ленты: во втором случае подсветку гасить нельзя.
+  const hitInGesture = useRef(false)
+
+  const handleHighlight = useCallback((next: boolean) => {
+    if (next) hitInGesture.current = true
+    setHighlighted(next)
+  }, [])
   const [worldCenter, setWorldCenter] = useState<Vector3 | null>(null)
   const [loadedShots, setLoadedShots] = useState<string[]>([])
 
@@ -94,18 +102,24 @@ export const FacadeView = ({shot, config, debug, adjust}: Props) => {
   }
 
   return (
-    <div ref={containerRef} className={styles.facade} data-hovered={highlighted || undefined}>
+    <div
+      ref={containerRef}
+      className={styles.facade}
+      data-hovered={highlighted || undefined}
+      // Обработчик стоит на контейнере, поэтому срабатывает уже после сцены: к этому моменту
+      // известно, задел ли нажатие объём. Смотрим именно нажатие, а не отпускание, — палец
+      // за время касания успевает сместиться и промахнуться мимо узкой ленты.
+      onPointerDownCapture={() => {
+        hitInGesture.current = false
+      }}
+      onPointerDown={() => {
+        if (!hitInGesture.current) setHighlighted(false)
+      }}
+    >
       {renderFrame(displayed, ready)}
       {incoming && renderFrame(incoming, incomingReady)}
 
-      <Canvas
-        className={styles.canvas}
-        gl={{antialias: true, alpha: true}}
-        dpr={[1, 2]}
-        // Нажатие мимо объёма снимает подсветку. На тач-устройстве это единственный способ
-        // её убрать: событие ухода указателя там не приходит.
-        onPointerMissed={() => setHighlighted(false)}
-      >
+      <Canvas className={styles.canvas} gl={{antialias: true, alpha: true}} dpr={[1, 2]}>
         <ShotCamera shot={active} sensorHeightMm={sensorHeightMm} region={activeView.region} />
         {debug && <DebugBridge />}
         <Suspense fallback={null}>
@@ -114,7 +128,7 @@ export const FacadeView = ({shot, config, debug, adjust}: Props) => {
             shot={active}
             debug={debug}
             highlighted={highlighted}
-            onHighlightChange={setHighlighted}
+            onHighlightChange={handleHighlight}
             onWorldCenterChange={setWorldCenter}
           />
         </Suspense>

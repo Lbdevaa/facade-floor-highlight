@@ -85,11 +85,11 @@ export const HighlightVolume = ({model, shot, debug, highlighted, onHighlightCha
       geometry={visibleGeometry}
       position={position}
       quaternion={quaternion}
-      // Мышь: наведение и уход курсора. Касание: pointerdown по объёму включает подсветку,
-      // а выключает её промах мимо объёма — onPointerMissed на канвасе. Своего pointerout
-      // тач не даёт: после отрыва пальца указатель исчезает, оставаясь над объёмом.
-      onPointerOver={() => onHighlightChange(true)}
-      onPointerOut={() => onHighlightChange(false)}
+      // Наведение и уход курсора — только для мыши. У касания уход указателя означает
+      // всего лишь отрыв пальца: подсветку он снимать не должен, иначе она гаснет сразу
+      // после нажатия. Для касания выключателем служит нажатие мимо объёма.
+      onPointerOver={(event) => event.pointerType === 'mouse' && onHighlightChange(true)}
+      onPointerOut={(event) => event.pointerType === 'mouse' && onHighlightChange(false)}
       onPointerDown={() => onHighlightChange(true)}
     >
       <meshBasicMaterial

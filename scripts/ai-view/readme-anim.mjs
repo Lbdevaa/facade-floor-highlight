@@ -38,21 +38,28 @@ const waitScene = async (page) => {
   await page.waitForTimeout(900)
 }
 
-/** Ищем точку, в которой объём принимает наведение: перебираем сетку вокруг центра. */
+/**
+ * Точки поиска: сначала колонка по центру сверху вниз, потом соседние — лента стен этажа
+ * узкая, редкая сетка мимо неё проскакивает.
+ */
+const searchPoints = (width, height) => {
+  const points = []
+
+  for (const fx of [0.5, 0.46, 0.54, 0.42, 0.58, 0.38, 0.62])
+    for (let fy = 0.3; fy <= 0.7001; fy += 0.02) points.push({x: Math.round(width * fx), y: Math.round(height * fy)})
+
+  return points
+}
+
+/** Ищем точку, в которой этаж принимает наведение. */
 const findVolume = async (page) => {
-  const spots = []
-
-  for (const fy of [0.5, 0.45, 0.55, 0.4, 0.6, 0.35, 0.65])
-    for (const fx of [0.5, 0.45, 0.55, 0.4, 0.6, 0.35, 0.65])
-      spots.push({x: Math.round(VIEWPORT.width * fx), y: Math.round(VIEWPORT.height * fy)})
-
-  for (const spot of spots) {
-    await page.mouse.move(spot.x, spot.y)
-    await page.waitForTimeout(120)
-    if (await page.locator('[data-hovered]').count()) return spot
+  for (const point of searchPoints(VIEWPORT.width, VIEWPORT.height)) {
+    await page.mouse.move(point.x, point.y)
+    await page.waitForTimeout(90)
+    if (await page.locator('[data-hovered]').count()) return point
   }
 
-  throw new Error('Объём не отзывается на наведение — писать нечего')
+  throw new Error('Этаж не отзывается на наведение — писать нечего')
 }
 
 const buttonCenter = async (page, name) => {

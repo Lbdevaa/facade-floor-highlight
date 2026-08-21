@@ -40,8 +40,10 @@
   }
 }
 
-.facade[data-hovered] {
-  cursor: pointer;
+@media (pointer: fine) {
+  .facade[data-hovered] {
+    cursor: pointer;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
