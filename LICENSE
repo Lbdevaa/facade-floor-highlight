@@ -1,0 +1,70 @@
+Copyright (c) 2026 Lebedev Andrey (https://github.com/Lbdevaa). All rights reserved.
+
+RU
+--
+
+Все права на исходный код, тексты, изображения, 3D-модели и прочие материалы
+этого репозитория принадлежат правообладателю. Репозиторий открыт для просмотра,
+но НЕ является программным обеспечением с открытым исходным кодом.
+
+Без предварительного письменного разрешения правообладателя ЗАПРЕЩЕНО:
+
+  * копировать, воспроизводить и повторно публиковать код или любую его часть,
+    в том числе в составе других проектов;
+  * распространять, публиковать и передавать третьим лицам;
+  * изменять код и создавать производные работы на его основе;
+  * использовать код или его фрагменты в личных, учебных, коммерческих и любых
+    иных проектах, включая закрытые;
+  * использовать материалы репозитория для обучения моделей машинного обучения
+    и для генерации кода на их основе;
+  * удалять или изменять указания об авторстве и настоящее уведомление.
+
+РАЗРЕШЕНО без отдельного согласия: просматривать репозиторий на GitHub, а также
+выполнять действия, прямо предусмотренные условиями использования GitHub
+(https://docs.github.com/site-policy/github-terms-of-service) для публичных
+репозиториев, — в частности, форк средствами GitHub, — исключительно в целях
+ознакомления. Такой форк не даёт прав на использование кода, перечисленных выше
+в качестве запрещённых.
+
+Запрос на разрешение: lbdev.aa@gmail.com
+
+Материалы предоставляются «как есть», без каких-либо гарантий, явных или
+подразумеваемых. Правообладатель не несёт ответственности за любые претензии,
+убытки или иной ущерб, возникшие в связи с использованием материалов.
+
+Зависимости, установленные из npm, распространяются под собственными лицензиями
+их авторов и настоящим уведомлением не затрагиваются.
+
+EN
+--
+
+All rights to the source code, texts, images, 3D models and other materials in
+this repository are reserved by the copyright holder. The repository is public
+for viewing only and is NOT open-source software.
+
+Without the prior written permission of the copyright holder you MAY NOT:
+
+  * copy, reproduce or republish the code or any part of it, including as part
+    of another project;
+  * distribute, publish or transfer it to third parties;
+  * modify the code or create derivative works from it;
+  * use the code or its fragments in personal, educational, commercial or any
+    other projects, including private ones;
+  * use the contents of this repository to train machine learning models or to
+    generate code from them;
+  * remove or alter authorship notices or this notice.
+
+PERMITTED without separate consent: viewing the repository on GitHub and the
+actions expressly allowed by the GitHub Terms of Service
+(https://docs.github.com/site-policy/github-terms-of-service) for public
+repositories — in particular forking through GitHub — solely for the purpose of
+review. Such a fork grants none of the rights listed above as prohibited.
+
+Permission requests: lbdev.aa@gmail.com
+
+THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. THE COPYRIGHT HOLDER SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY ARISING FROM OR IN CONNECTION WITH THE MATERIALS.
+
+Dependencies installed from npm are covered by their own licenses and are not
+affected by this notice.
